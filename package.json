@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node --env-file=.env palvelin.js",
     "dev": "node --env-file=.env --watch palvelin.js",
-    "test": "node --test test/"
+    "test": "node --test"
   },
   "keywords": [],
   "author": "Bita Yeganeh",
