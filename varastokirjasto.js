@@ -1,104 +1,124 @@
 import mariadb from 'mariadb';
 
-export default class Tietokanta{
-    #yhteystiedot
+// Error with an HTTP status, for problems the user can fix (bad input)
+export class Kayttajavirhe extends Error {
+    constructor(viesti, status = 400) {
+        super(viesti);
+        this.status = status;
+    }
+}
 
-    constructor(yhteystiedot){
-        this.#yhteystiedot=yhteystiedot;
+export default class Tietokanta {
+    #yhteystiedot;
+
+    constructor(yhteystiedot) {
+        this.#yhteystiedot = yhteystiedot;
     }
 
+    async #yhteys() {
+        return mariadb.createConnection(this.#yhteystiedot);
+    }
+
+    // Errors are thrown to the caller (the API answers 500) instead of
+    // being hidden behind an empty list
     async haeKaikki(sql) {
-        let yhteys;
+        return this.hae(sql, []);
+    }
+
+    async hae(sql, parametrit) {
+        const yhteys = await this.#yhteys();
         try {
-            yhteys = await mariadb.createConnection(this.#yhteystiedot);
-            const tulos = await yhteys.query(sql);
-            return Promise.resolve(tulos);
-        }
-        catch (virhe) {
-            console.log(virhe); //debuggausta varten
-            return Promise.resolve([]);
-        }
-        finally {
-            if (yhteys) yhteys.end();
+            return await yhteys.query(sql, parametrit);
+        } finally {
+            await yhteys.end();
         }
     }
 
-    async hae(sql,parametrit) {
-        let yhteys;
+    async lisaa(sql, parametrit) {
+        const yhteys = await this.#yhteys();
         try {
-            yhteys = await mariadb.createConnection(this.#yhteystiedot);
-            const tulos = await yhteys.query(sql,parametrit);
-            return Promise.resolve(tulos);
-        }
-        catch (virhe) {
-            console.log(virhe); //debuggausta varten
-            return Promise.resolve([]);
-        }
-        finally {
-            if (yhteys) yhteys.end();
-        }
-    } //hae loppu
-
-    async lisaa(sql, parametrit){
-        let yhteys;
-        try {
-            yhteys = await mariadb.createConnection(this.#yhteystiedot);
             await yhteys.query(sql, parametrit);
-            return Promise.resolve({viesti:'lisäys onnistui', tyyppi:'info'});
+            return { viesti: 'lisäys onnistui', tyyppi: 'info' };
+        } catch (virhe) {
+            if (virhe.code === 'ER_DUP_ENTRY') {
+                throw new Kayttajavirhe('Tällä numerolla on jo asiakas.', 409);
+            }
+            throw virhe;
+        } finally {
+            await yhteys.end();
         }
-        catch (virhe) {
-            // console.log(virhe); //debuggausta varten
-            return Promise.reject({viesti:'tapahtui virhe', tyyppi:'virhe'});
+    }
+
+    /**
+     * Saves an order in ONE transaction on ONE connection.
+     * The course version opened a new connection for every row, so the
+     * rollback could not undo anything. Prices come from the database,
+     * never from the browser, and stock is checked and reduced.
+     *
+     * tilaus = { asiakasId, tilausrivit: [{ puutarhaId, kukkaId, lkm }] }
+     */
+    async lisaaTilaus(tilaus, sqlLauseet) {
+        const sql = (nimi) => sqlLauseet[nimi].join(' ');
+        const { asiakasId, tilausrivit } = tilaus ?? {};
+
+        if (!Number.isInteger(Number(asiakasId))) {
+            throw new Kayttajavirhe('Valitse asiakas.');
         }
-        finally {
-            if (yhteys) yhteys.end();
+        if (!Array.isArray(tilausrivit) || tilausrivit.length === 0) {
+            throw new Kayttajavirhe('Tilauksessa ei ole yhtään riviä.');
         }
-    }//lisaa loppu
 
-    // const tilaus = {
-    //     tilausId: 100,
-    //     asiakasId: 24,
-    //     tilauspvm: '2025-10-10',
-    //     tilausrivit: [
-    //         {
-    //             kukkaId: 1,
-    //             puutarhaId: 2,
-    //             lkm: 5,
-    //             hinta: 10
-    //         }
-    //     ]
-    // }
+        // Same flower from the same garden twice -> one row with the sum
+        const rivit = new Map();
+        for (const rivi of tilausrivit) {
+            const lkm = Number(rivi.lkm);
+            if (!Number.isInteger(lkm) || lkm < 1) {
+                throw new Kayttajavirhe('Määrän pitää olla vähintään 1.');
+            }
+            const avain = `${rivi.puutarhaId}-${rivi.kukkaId}`;
+            const vanha = rivit.get(avain);
+            rivit.set(avain, {
+                puutarhaId: Number(rivi.puutarhaId),
+                kukkaId: Number(rivi.kukkaId),
+                lkm: (vanha?.lkm ?? 0) + lkm,
+            });
+        }
 
-    async lisaaTilaus(tilausolio, sqlLauseet) {
-        let yhteys;
-        const lisaaTilausSql =sqlLauseet.lisaaTilaus.join(' ');
-        const lisaaTilausriviSql = sqlLauseet.lisaaTilausrivi.join(' ');
-
-        const { tilausId, asiakasId, tilauspvm, tilausrivit }=tilausolio;
-
-
+        const yhteys = await this.#yhteys();
         try {
-            yhteys = await mariadb.createConnection(this.#yhteystiedot);
-            await yhteys.query('start transaction');
-            await this.lisaa(lisaaTilausSql,[tilausId,asiakasId,tilauspvm]);
+            await yhteys.beginTransaction();
 
-            for(const rivi of tilausrivit){
-                console.log(rivi)
-                await this.lisaa(lisaaTilausriviSql,
-                    [tilausId, rivi.kukkaId,rivi.puutarhaId,rivi.lkm, rivi.hinta]);
+            const asiakas = await yhteys.query(sql('asiakasOlemassa'), [asiakasId]);
+            if (asiakas.length === 0) {
+                throw new Kayttajavirhe('Asiakasta ei löydy.');
             }
 
-            await yhteys.query('commit');
-            return Promise.resolve({ viesti: 'lisäys onnistui', tyyppi: 'info' });
-        }
-        catch (virhe) {
-            await yhteys.query('rollback');
-            console.log(virhe); //debuggausta varten
-            return Promise.reject({ viesti: 'tapahtui virhe', tyyppi: 'virhe' });
-        }
-        finally {
-            if (yhteys) yhteys.end();
+            const [{ seuraava }] = await yhteys.query(sql('seuraavaTilausId'));
+            const tilausId = Number(seuraava);
+            await yhteys.query(sql('lisaaTilaus'), [tilausId, asiakasId, new Date()]);
+
+            let summa = 0;
+            for (const rivi of rivit.values()) {
+                const [varasto] = await yhteys.query(sql('varastoJaHinta'), [rivi.puutarhaId, rivi.kukkaId]);
+                if (!varasto) {
+                    throw new Kayttajavirhe('Valittua kukkaa ei myydä tässä puutarhassa.');
+                }
+                if (varasto.varasto < rivi.lkm) {
+                    throw new Kayttajavirhe(`Varastossa on vain ${varasto.varasto} kpl.`);
+                }
+                await yhteys.query(sql('lisaaTilausrivi'),
+                    [tilausId, rivi.kukkaId, rivi.puutarhaId, rivi.lkm, varasto.yksikkohinta]);
+                await yhteys.query(sql('vahennaVarastoa'), [rivi.lkm, rivi.puutarhaId, rivi.kukkaId]);
+                summa += rivi.lkm * varasto.yksikkohinta;
+            }
+
+            await yhteys.commit();
+            return { tilausId, summa };
+        } catch (virhe) {
+            await yhteys.rollback();
+            throw virhe;
+        } finally {
+            await yhteys.end();
         }
     }
-
-} //luokan loppu
+}

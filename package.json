@@ -1,18 +1,22 @@
 {
-  "name": "viikko8",
+  "name": "kukkakauppa",
   "version": "1.0.0",
   "main": "palvelin.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node --env-file=.env palvelin.js",
+    "dev": "node --env-file=.env --watch palvelin.js",
+    "test": "node --test test/"
   },
   "keywords": [],
-  "author": "",
+  "author": "Bita Yeganeh",
   "license": "ISC",
-  "description": "",
+  "description": "Flower shop ordering app: MariaDB database, Express REST API and a plain JavaScript front end",
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^5.1.0",
     "mariadb": "^3.4.5"
+  },
+  "engines": {
+    "node": ">=20.6"
   }
 }

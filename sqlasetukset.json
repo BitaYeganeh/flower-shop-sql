@@ -1,11 +1,4 @@
 {
-    "yhteystiedot": {
-        "host": "localhost",
-        "port": 3306,
-        "user": "kauppias",
-        "password": "<set locally>",
-        "database": "kukkakauppa"
-    },
     "sqlLauseet": {
         "kaikkiKukat": [
             "select kukkaId, kukanNimi, paikanTyyppi, paikanKuvaus",
@@ -47,11 +40,37 @@
             "order by kukanNimi asc"
         ],
         "tilaustiedot": [
-            "select puutarhanNimi,kukkaId,kukanNimi, varasto,",
+            "select puutarhanNimi, kukkaId, kukanNimi, varasto,",
             "yksikkohinta from puutarha",
             "natural join puutarhan_kukat",
             "natural join kukka",
             "where puutarhaId=? and kukkaId=?"
+        ],
+        "asiakkaat": [
+            "select asiakasId, etunimi, sukunimi from asiakas order by sukunimi, etunimi"
+        ],
+        "asiakasOlemassa": [
+            "select asiakasId from asiakas where asiakasId=?"
+        ],
+        "seuraavaTilausId": [
+            "select coalesce(max(tilausId), 0) + 1 as seuraava from tilaus for update"
+        ],
+        "varastoJaHinta": [
+            "select yksikkohinta, varasto from puutarhan_kukat",
+            "where puutarhaId=? and kukkaId=? for update"
+        ],
+        "vahennaVarastoa": [
+            "update puutarhan_kukat set varasto = varasto - ?",
+            "where puutarhaId=? and kukkaId=?"
+        ],
+        "tilaukset": [
+            "select t.tilausId, t.tilauspvm, a.etunimi, a.sukunimi,",
+            "sum(tk.lkm * tk.hinta) as summa, sum(tk.lkm) as kpl",
+            "from tilaus t",
+            "join asiakas a on a.asiakasId = t.asiakasId",
+            "join tilauksen_kukat tk on tk.tilausId = t.tilausId",
+            "group by t.tilausId, t.tilauspvm, a.etunimi, a.sukunimi",
+            "order by t.tilausId desc"
         ]
     }
 }
