@@ -1,0 +1,57 @@
+{
+    "yhteystiedot": {
+        "host": "localhost",
+        "port": 3306,
+        "user": "kauppias",
+        "password": "<set locally>",
+        "database": "kukkakauppa"
+    },
+    "sqlLauseet": {
+        "kaikkiKukat": [
+            "select kukkaId, kukanNimi, paikanTyyppi, paikanKuvaus",
+            "from kasvupaikka",
+            "natural join kukka",
+            "order by kukkaId asc"
+        ],
+        "kaikkiPuutarhat": [
+            "select puutarhaId, puutarhanNimi, puutarhanSijainti",
+            "from puutarha order by puutarhaId"
+        ],
+        "puutarhalista": [
+            "select puutarhaId, puutarhanNimi from puutarha"
+        ],
+        "puutarhanKukat": [
+            "select puutarhanNimi,kukanNimi, varasto,",
+            "yksikkohinta from puutarha",
+            "natural join puutarhan_kukat",
+            "natural join kukka",
+            "where puutarhaId=?",
+            "order by kukanNimi asc"
+        ],
+        "lisaaAsiakas": [
+            "insert into asiakas (asiakasId, etunimi, sukunimi, osoite)",
+            "values(?,?,?,?)"
+        ],
+        "lisaaTilaus": [
+            "insert into tilaus (tilausId, asiakasId, tilauspvm)",
+            "values (?,?,?)"
+        ],
+        "lisaaTilausrivi": [
+            "insert into tilauksen_kukat (tilausId, kukkaId, puutarhaId, lkm, hinta)",
+            "values(?,?,?,?,?)"
+        ],
+        "kukkalista": [
+            "select kukkaId,kukanNimi from kukka",
+            "natural join puutarhan_kukat",
+            "where puutarhaId=?",
+            "order by kukanNimi asc"
+        ],
+        "tilaustiedot": [
+            "select puutarhanNimi,kukkaId,kukanNimi, varasto,",
+            "yksikkohinta from puutarha",
+            "natural join puutarhan_kukat",
+            "natural join kukka",
+            "where puutarhaId=? and kukkaId=?"
+        ]
+    }
+}

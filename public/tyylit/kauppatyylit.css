@@ -1,0 +1,32 @@
+h1{
+    color: blue;
+}
+
+main{
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    row-gap: 1em;
+}
+form{
+    display: grid;
+    align-items: left;
+    row-gap: 0.25em;
+}
+
+table{
+    border-collapse: collapse;
+    
+}
+thead{
+    background-color: antiquewhite;
+}
+
+table, th, td{
+    border: solid black 0.1em;
+    padding: 0.5em;
+}
+
+button{
+    width: 10em;
+}
