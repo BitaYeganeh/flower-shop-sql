@@ -1,34 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puutarhan kukat</title>
+    <title>Tee tilaus · Kukkakauppa</title>
     <link rel="stylesheet" href="/tyylit/kauppatyylit.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script type="module" src="/js/tilauslista.js"></script>
 </head>
 <body>
+    <header class="ylapalkki"><a href="/" class="logo">🌷 Kukkakauppa</a></header>
     <main>
-        <h1>Puutarhan kukat</h1>
-        <div>
-            <label>Valitse puutarha:</label>
-            <select id="puutarhalista"></select>
-        </div>
-        <div>
-            <label>Valitse kukka:</label>
-            <select id="kukkalista"></select>
-        </div>
-        <form id="tilaustiedot">
-            <label>PuutarhaId: <input type="text" id="pid" name="puutarhaId" readonly></label>
-            <label>KukkaId: <input type="text" id="kid" name="kukkaId" readonly></label>
-            <label>Kukka: <input type="text" id="nimi" name="kukanNimi" readonly></label>
-            <label>hinta: <input type="text" id="hinta" name="hinta" readonly></label>
-            <label>Tilattava määrä: <input type="number" id="määrä" name="määrä" min="0" ></label>
-        </form>
-        <button id="lisaarivi">Lisää tilausrivi</button>
-        <pre id="tilausrivit"></pre>
-        
-        <a href="/"><button>Valikkoon</button></a>
+        <h1>Tee tilaus</h1>
+
+        <section class="kortti">
+            <label>Asiakas
+                <select id="asiakaslista" required>
+                    <option value="">Valitse asiakas…</option>
+                </select>
+            </label>
+            <p class="pieni">Uusi asiakas? <a href="/sivut/asiakasLomake.html">Lisää asiakas</a></p>
+        </section>
+
+        <section class="kortti">
+            <h2>Lisää kukka</h2>
+            <div class="rivi">
+                <label>Puutarha
+                    <select id="puutarhalista"><option value="">Valitse puutarha…</option></select>
+                </label>
+                <label>Kukka
+                    <select id="kukkalista" disabled><option value="">Valitse ensin puutarha</option></select>
+                </label>
+            </div>
+            <p id="kukantiedot" class="pieni" aria-live="polite"></p>
+            <div class="rivi rivi--loppu">
+                <label>Määrä
+                    <input type="number" id="maara" min="1" value="1" disabled>
+                </label>
+                <button id="lisaarivi" disabled>Lisää tilaukseen</button>
+            </div>
+        </section>
+
+        <section class="kortti">
+            <h2>Tilaus</h2>
+            <table>
+                <thead>
+                    <tr><th>Kukka</th><th>Puutarha</th><th class="num">Määrä</th><th class="num">á-hinta</th><th class="num">Yhteensä</th><th></th></tr>
+                </thead>
+                <tbody id="tilausrivit">
+                    <tr><td colspan="6" class="tyhja">Tilauksessa ei ole vielä kukkia.</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr><th colspan="4">Yhteensä</th><th class="num" id="summa">0 €</th><th></th></tr>
+                </tfoot>
+            </table>
+            <button id="laheta" class="ensisijainen" disabled>Lähetä tilaus</button>
+            <p id="viestialue" role="status"></p>
+        </section>
+
+        <a href="/" class="takaisin">← Valikkoon</a>
     </main>
 </body>
 </html>

@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>valikko</title>
+    <title>Kukkakauppa</title>
     <link rel="stylesheet" href="/tyylit/kauppatyylit.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
+    <header class="ylapalkki"><a href="/" class="logo">🌷 Kukkakauppa</a></header>
     <main>
-        <h1>Valikko</h1>
-        
-        <a href="/sivut/kaikkiKukat.html"><button>Kaikki kukat</button></a>
-        <a href="/sivut/kaikkiPuutarhat.html"><button>Kaikki puutarhat</button></a>
-        <a href="/sivut/puutarhanKukat.html"><button>Kaikki puutarhan kukat</button></a>
-        <a href="/sivut/puutarhanKukatLista.html"><button>Kaikki puutarhan kukat lista</button></a>
-        <a href="/sivut/asiakasLomake.html"><button>Lisaa asiakas</button></a>
-        <a href="/sivut/tilauslista.html"><button>Tee tilaus</button></a>
+        <h1>Kukkakauppa</h1>
+        <p class="johdanto">Kukkien ja puutarhojen tiedot sekä tilaukset MariaDB-tietokannasta.</p>
+        <nav class="valikko">
+            <a href="/sivut/tilauslista.html" class="ruutu ruutu--paa"><strong>Tee tilaus</strong><span>Valitse kukat ja lähetä tilaus</span></a>
+            <a href="/sivut/tilaukset.html" class="ruutu"><strong>Tilaukset</strong><span>Kaikki tilaukset summineen</span></a>
+            <a href="/sivut/asiakasLomake.html" class="ruutu"><strong>Lisää asiakas</strong><span>Uusi asiakas tietokantaan</span></a>
+            <a href="/sivut/kaikkiKukat.html" class="ruutu"><strong>Kaikki kukat</strong><span>Kukat ja kasvupaikat</span></a>
+            <a href="/sivut/kaikkiPuutarhat.html" class="ruutu"><strong>Kaikki puutarhat</strong><span>Puutarhat ja sijainnit</span></a>
+            <a href="/sivut/puutarhanKukatLista.html" class="ruutu"><strong>Puutarhan kukat</strong><span>Hinnat ja varasto puutarhoittain</span></a>
+        </nav>
     </main>
 </body>
 </html>

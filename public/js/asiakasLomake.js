@@ -1,27 +1,17 @@
-let asiakastiedot;
-let viestialue;
+document.addEventListener('DOMContentLoaded', () => {
+    const lomake = document.getElementById('asiakastiedot');
+    const viestialue = document.getElementById('viestialue');
 
-document.addEventListener('DOMContentLoaded', alusta);
-
-function alusta(){
-    asiakastiedot = document.getElementById('asiakastiedot');
-    viestialue = document.getElementById('viestialue');
-
-    document.getElementById('laheta').addEventListener('click', laheta);
-}
-
-async function laheta(){
-    const asiakasdata=new FormData(asiakastiedot);
-    const asiakasJson = Object.fromEntries(asiakasdata.entries());
-
-    const optiot={
-        method:'post',
-        body:JSON.stringify(asiakasJson),
-        headers:{'Content-Type':'application/json'}
-    };
-
-    const tulos = await fetch('/uusiasiakas',optiot);
-    const tila=await tulos.json();
-
-    viestialue.textContent=tila.viesti;
-}
+    lomake.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const vastaus = await fetch('/uusiasiakas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Object.fromEntries(new FormData(lomake))),
+        });
+        const tila = await vastaus.json();
+        viestialue.textContent = vastaus.ok ? 'Asiakas tallennettu.' : tila.viesti;
+        viestialue.className = `viesti viesti--${vastaus.ok ? 'info' : 'virhe'}`;
+        if (vastaus.ok) lomake.reset();
+    });
+});

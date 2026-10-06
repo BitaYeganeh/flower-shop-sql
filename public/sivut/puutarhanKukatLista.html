@@ -5,20 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puutarhan kukat</title>
     <link rel="stylesheet" href="/tyylit/kauppatyylit.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script type="module" src="/js/puutarhankukatLista.js"></script>
 </head>
 <body>
+    <header class="ylapalkki"><a href="/" class="logo">🌷 Kukkakauppa</a></header>
     <main>
         <h1>Puutarhan kukat</h1>
         <div>
             <label>Valitse puutarha:</label>
-            <select id="puutarhalista"></select>
+            <select id="puutarhalista"><option value="">Valitse puutarha…</option></select>
         </div>
         <table>
             <thead></thead>
             <tbody></tbody>
         </table>
-        <a href="/"><button>Valikkoon</button></a>
+        <a href="/" class="takaisin">← Valikkoon</a>
     </main>
 </body>
 </html>

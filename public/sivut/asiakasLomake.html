@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>asiakas</title>
+    <title>Uusi asiakas · Kukkakauppa</title>
     <link rel="stylesheet" href="/tyylit/kauppatyylit.css">
-    <script type="module" src="/js/asiakasLomake.js"></script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <script src="/js/asiakasLomake.js"></script>
 </head>
 <body>
+    <header class="ylapalkki"><a href="/" class="logo">🌷 Kukkakauppa</a></header>
     <main>
         <h1>Uusi asiakas</h1>
-
-        <form id="asiakastiedot">
-            <label> Asiakas Id: <input type="text" name="asiakasId"></label>
-            <label> Etunimi: <input type="text" name="etunimi"></label>
-            <label> Sukunimi: <input type="text" name="sukunimi"></label>
-            <label> Osoite: <input type="text" name="osoite"></label>
+        <form id="asiakastiedot" class="kortti">
+            <label>Asiakasnumero <input type="number" name="asiakasId" min="1" required></label>
+            <label>Etunimi <input type="text" name="etunimi" required autocomplete="given-name"></label>
+            <label>Sukunimi <input type="text" name="sukunimi" required autocomplete="family-name"></label>
+            <label>Osoite <input type="text" name="osoite" required autocomplete="street-address"></label>
+            <button type="submit" class="ensisijainen">Tallenna asiakas</button>
+            <p id="viestialue" role="status"></p>
         </form>
-        <button id="laheta">Lähetä</button>
-        <p id="viestialue"></p>
-
-        <a href="/"><button>Valikkoon</button></a>
+        <a href="/" class="takaisin">← Valikkoon</a>
     </main>
 </body>
 </html>

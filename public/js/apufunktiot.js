@@ -22,11 +22,12 @@ function muodostaOtsikkorivi(otsikot){
     return tr;
 }
 
-function muodostaLista(listaelementti, data, perusavain, teksti){
+// teksti is a field name; muotoile (optional) builds the text from the whole row
+function muodostaLista(listaelementti, data, perusavain, teksti, muotoile){
     for (const alkio of data) {
         const option = document.createElement('option');
         option.value = alkio[perusavain];
-        option.textContent = alkio[teksti];
+        option.textContent = muotoile ? muotoile(alkio) : alkio[teksti];
         listaelementti.appendChild(option);
     }
 }
