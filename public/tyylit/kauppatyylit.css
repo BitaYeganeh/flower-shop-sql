@@ -38,6 +38,7 @@ main {
     margin: 0 auto;
     padding: 2rem 1.25rem 3rem;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
 }
 
@@ -57,6 +58,8 @@ h2 { margin: 0 0 0.75rem; font-size: 1.1rem; }
     padding: 1.25rem;
     display: grid;
     gap: 0.85rem;
+    min-width: 0;
+    overflow-x: auto; /* wide tables scroll inside the card on phones */
 }
 
 label {
